@@ -1,0 +1,18 @@
+Chris Leech
+TESTING for weather.c
+
+First, I tested entering no arguments.
+As expected, the program exits and asks for only one argument.
+Additionally, if you enter more than one argument, it again
+asks for only one argument.
+
+Next, I tested arguments longer or shorter than four
+characters. The program asks for an argument that is exactly
+four characters.
+
+Next, I tested the program with invalid codes.
+The program returns that the code is invalid
+
+Next, I modified my code and asked it to search for a tag
+that doesn't exist. The program printed all other relevant
+information, and noted that the tag couldn't be found.
