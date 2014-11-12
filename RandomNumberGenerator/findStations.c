@@ -9,7 +9,7 @@
 #include "mycurl.h"
 
 void writeIndex(FILE *fp, char* xmlText){
-	char *stationIndicator = "<station_id>";
+	char *stationIndicator = "<station_id>K";
 	char *stationPointer = strstr(xmlText, stationIndicator);
 	while(stationPointer != NULL){
 		stationPointer = strpbrk(stationPointer, ">"); // Shift to the end of the string

@@ -17,11 +17,13 @@ int check_code_found(char * response, CURL *curl);      // checks if the station
 void get_output(char * response, char * tag, char * data);   // prints out a single piece of data
 void print_output(char * response);             // calls get output for all the data
 unsigned int write_bits(char * response);
-void get_next_url(char* APIurl, int rand1, int rand2, int rand3);
+void get_next_url(char* APIurl, char *stationIndex[], int randomStationIndex);
+void get_station_list(FILE *fp, char *stationList[]);
 
 
 // ---------------- Constants
 #define URLSIZE 100
+#define NUMSTATIONS 1934
 
 int main(int argc, char *argv[]) {
 
@@ -38,7 +40,19 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Cannot open file %s", outfile);
         return EXIT_FAILURE;
     }
+    
+    FILE *index = fopen("index.txt", "r");
+    
+    if(index == NULL) {
+        fprintf(stderr, "Cannot open station index");
+        return EXIT_FAILURE;
+    } 
 
+    char *stationIndex[NUMSTATIONS];
+    get_station_list(index, stationIndex);
+
+    fprintf(stdout, "%s", stationIndex[150]);
+ 
     int numInts = atoi(argv[2]);
 
     char *APIurl = (char *)  malloc(URLSIZE * sizeof(char));
@@ -73,9 +87,15 @@ int main(int argc, char *argv[]) {
         
 
         while (intsWritten < numInts) {
-           
 
-            get_next_url(APIurl, rand() % 26, rand() % 26, rand() % 26);
+	    int randomStationIndex = rand() % NUMSTATIONS;
+	    
+	    if(randomStationIndex > NUMSTATIONS || randomStationIndex < 0){
+		fprintf(stderr, "random station index (%d)  out of bounds\n", randomStationIndex);
+		return EXIT_FAILURE;
+	    }
+
+            get_next_url(APIurl, stationIndex, randomStationIndex);
 
 
             /* set url we want to visit */
@@ -127,6 +147,7 @@ int main(int argc, char *argv[]) {
                 intsWritten ++;
             }
             
+	    fprintf(stderr, "Current accumulator value %d\n", accumulator); 
 
             /* allocate and intiialize the output area */
             init_curlResponse(&s);
@@ -173,17 +194,13 @@ int check_code_found(char *response, CURL *curl) {
  * codes.
  *
  * This just gets a random station ID url, starting with K
+		return stationNames;
  */
-void get_next_url(char* APIurl, int rand1, int rand2, int rand3) {
+void get_next_url(char* APIurl, char *stationIndex[], int randomStationIndex){
 
-    char* formatString = "http://w1.weather.gov/xml/current_obs/K%c%c%c.xml";
+    char* formatString = "http://w1.weather.gov/xml/current_obs/%s.xml";
     
-    char c1 = (char) rand1 + 65; // 65 is the number for 'A'
-    char c2 = (char) rand2 + 65;
-    char c3 = (char) rand3 + 65;
-    
-
-    sprintf(APIurl, formatString, c1, c2, c3);
+    sprintf(APIurl, formatString, stationIndex[randomStationIndex]);
 
 }
 
@@ -237,5 +254,23 @@ void  get_output(char *response, char *tag,  char * data) {
     snprintf(data, lengthUntilTag, tagPointer); /* write in the data */
 }
 
+
+void get_station_list(FILE *fp, char *stationNames[]){
+
+	if(fp != NULL){
+		int index = 0;
+		char line[10];
+
+		while(fgets(line, sizeof(line), fp) != NULL){
+			
+			stationNames[index] = malloc(sizeof(line)+1);
+			strcpy(stationNames[index], line);
+			index++;
+		}
+	}
+	else{
+		fprintf(stdout, "Error reading stations\n");
+	}
+}
 
 
