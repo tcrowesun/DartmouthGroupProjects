@@ -51,7 +51,6 @@ int main(int argc, char *argv[]) {
     char *stationIndex[NUMSTATIONS];
     get_station_list(index, stationIndex);
 
-    fprintf(stdout, "%s", stationIndex[150]);
  
     int numInts = atoi(argv[2]);
 
@@ -96,6 +95,7 @@ int main(int argc, char *argv[]) {
 	    }
 
             get_next_url(APIurl, stationIndex, randomStationIndex);
+
 
 
             /* set url we want to visit */
@@ -147,7 +147,6 @@ int main(int argc, char *argv[]) {
                 intsWritten ++;
             }
             
-	    fprintf(stderr, "Current accumulator value %d\n", accumulator); 
 
             /* allocate and intiialize the output area */
             init_curlResponse(&s);
@@ -264,7 +263,8 @@ void get_station_list(FILE *fp, char *stationNames[]){
 		while(fgets(line, sizeof(line), fp) != NULL){
 			
 			stationNames[index] = malloc(sizeof(line)+1);
-			strcpy(stationNames[index], line);
+			int nameSize = strcspn(line, "\n");
+			strncpy(stationNames[index], line, nameSize);
 			index++;
 		}
 	}
