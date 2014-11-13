@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     
-    FILE *index = fopen("index.txt", "r");
+    FILE *index = fopen("files/index.txt", "r");
     
     if(index == NULL) {
         fprintf(stderr, "Cannot open station index");
