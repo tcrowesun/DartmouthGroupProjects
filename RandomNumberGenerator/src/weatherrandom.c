@@ -24,6 +24,7 @@ void get_station_list(FILE *fp, char *stationList[]);
 // ---------------- Constants
 #define URLSIZE 100
 #define NUMSTATIONS 1934
+#define ERROR 666
 
 int main(int argc, char *argv[]) {
 
@@ -94,8 +95,8 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	    }
 
-            get_next_url(APIurl, stationIndex, randomStationIndex);
 
+            get_next_url(APIurl, stationIndex, randomStationIndex);
 
 
             /* set url we want to visit */
@@ -111,7 +112,6 @@ int main(int argc, char *argv[]) {
                 curl_easy_cleanup(curl);
                 return EXIT_FAILURE;
             } 
-            
 
             /* make sure the station exists */
             if(check_code_found(s.ptr, curl)) {
@@ -119,14 +119,13 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-
             // get the random bits from the curl reply
             bits = write_bits(s.ptr);
 
-
             // if any bits aren't found, we get back an 8
             // here we just want to skip the number
-            if(bits == 8) {
+            if(bits == ERROR) {
+
                 init_curlResponse(&s);
                 continue;
             }
@@ -142,6 +141,8 @@ int main(int argc, char *argv[]) {
             if(step == sizeof(int)*2) {
                 
                 fprintf(fp, "%u\n", accumulator);
+
+
                 step = 0;
                 accumulator = 0;
                 intsWritten ++;
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]) {
             init_curlResponse(&s);
 
         }
-    
+        fclose(fp); 
         curl_easy_cleanup(curl);
 
     }
@@ -216,15 +217,21 @@ unsigned int write_bits(char * response) {
     char * temp = (char *) malloc(6*sizeof(char));
     char * dew = (char *) malloc(6*sizeof(char));
 
+
     get_output(response, "<temp_f>",  temp);
     get_output(response, "<dewpoint_f>", dew);
 
+
     if(!temp || !dew) {
-        return 8;
+        free(temp);
+        free(dew);
+        return ERROR;
     }
 
     unsigned int itemp = atoi(temp);
     unsigned int idew = atoi(dew);
+
+    
 
     free(temp);
     free(dew);
@@ -241,16 +248,21 @@ void  get_output(char *response, char *tag,  char * data) {
 
     char *tagPointer = strstr(response, tag);
 
+
     if (tagPointer == NULL) {
 
         data = NULL;
+        return;
     }
 
     tagPointer = strpbrk(tagPointer, ">"); /* shift to the end of the tag */
     int lengthUntilTag = strcspn(tagPointer, "<");
     tagPointer++; /* shift past the ">" in the starting tag */
 
+
     snprintf(data, lengthUntilTag, tagPointer); /* write in the data */
+
+
 }
 
 
