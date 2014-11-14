@@ -3,33 +3,43 @@
 #include <stdio.h>
 
 
-int * read_seeds(FILE *fp, int how_many);
+int * read_seeds(FILE *fp, int how_many_ints);
 
 int main(int argc, char *argv[]) {
 
-    if(argc != 4) {
-        fprintf(stderr, "%s requires exactly 2 arguments: a file to read in random numbers to, and the number of ints you have in the file, and a file to write the extended bits to.", argv[0]);
+    if(argc != 5) {
+        fprintf(stderr, "%s requires exactly 4 arguments: a file to read in random numbers to, and the number of ints you have in the file, a file to write the extended bits to, and the number of random bytes you want written to your file.", argv[0]);
         return EXIT_FAILURE;
     }
     char * infile = argv[1];
-    int how_many = atoi(argv[2]);
+    int how_many_ints = atoi(argv[2]);
     char * outfile = argv[3];
+    int how_many_bytes = atoi(argv[4]);
+
+    int bytes_per_seed = how_many_bytes/how_many_ints;
 
     FILE * fp = fopen(infile, "r");
-    int * list =  read_seeds(fp, how_many);
+    int * list =  read_seeds(fp, how_many_ints);
+    fp = fopen(outfile, "w");
+    unsigned char bits;
 
-    for(int i = 0; i<10; i++) {
+    for(int i = 0; i<how_many_ints; i++) {
 
-        printf("%d\n",list[i]);
+        srand(list[i]);
+        for(int j = 0; j < bytes_per_seed; j++) {
+            
+            bits = rand();
+            fwrite(&bits, 1, 1, fp);
+        
+        }
     }
 
 }
 
 
+int * read_seeds(FILE *fp, int how_many_ints){
 
-int * read_seeds(FILE *fp, int how_many){
-
-    int * list = (int * ) malloc(how_many * sizeof(int));
+    int * list = (int * ) malloc(how_many_ints * sizeof(int));
     
     if(fp != NULL){
         int index = 0;
