@@ -6,3 +6,39 @@ other general information
 Platform Used
 -------------
 Mac OSX 10.10 (Yosemite) running on a 2012 MacBook Pro
+
+Building Submission
+-------------------
+Our project will compile automatically with the make utility using the
+included Makefile. The `make` command will compile the entire
+submission, creating weatherrandom and extender executables in the
+current directory. `make testing` creates a badRNG executable for
+testing purposes, while `make indexer` creates a findstations executable
+in case the user wants to recreate the index. `make weather` creates
+a weather executable in case the user wishes to examine the program
+from which we created weatherrandom.c.
+
+`make clean` will remove all executables, .o files, and so on, restoring
+all directories and subdirectories to their pre-make state.
+
+Running the included shell script (./generaterand.sh) with the
+appropriate parameters will create an output file of random bytes according
+to user specifications. The expected input to the script is as follows:
+
+./generaterand.sh [OUTPUT FILE NAME] [NUMBER OF SEED INTS] [NUMBER OF OUTPUT 
+BYTES]
+
+Where [OUTPUT FILE NAME] is the desired output file (comes from the extender),
+[NUMBER OF SEED INTS] is the number of random integers/bit patterns created by
+weatherrandom.c, and [NUMBER OF OUTPUT BYTES] is the number of bytes written
+to the output file by the extender.
+
+Notes
+-----
+Much of our testing is described in the accompanying essay; the TESTING file
+contains information left over from weather.c (a program created as part of CS
+50, Software Design and Implementation). The TESTING file will be updated as
+necessary at a later date.
+
+Please contact Matt, Tyler, or Chris with any further questions. Thanks for
+using our random number generator!
