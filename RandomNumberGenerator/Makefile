@@ -21,6 +21,10 @@ testing:
 	@$(CC) $(CFLAGS) -o badRNG $(TEST)badRNG.c
 	@echo "Building badRNG"	
 
+indexer:
+	@$(CC) $(CFLAGS) -o findstations $(SRC)findstations.c $(UTIL)mycurl.c -I $(UTIL)
+	@echo "Building findstations"
+
 weather:
 	@$(CC) $(CFLAGS) -o weather $(SRC)weather.c $(UTIL)mycurl.c -I $(UTIL)
 	@echo "Building weather"
@@ -34,3 +38,5 @@ clean:
 	@rm -f ./weatherrandom
 	@rm -f ./extender
 	@rm -f ./badRNG
+	@rm -f ./findstations
+	@echo "Clean"
