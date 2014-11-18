@@ -9,10 +9,10 @@
 # Command line options: none
 #
 # Input: name of file for output, number of ints for initial/
-# seed random number generation
+# seed random number generation, number of output bytes
 #
 # Output: a binary file containing a specified number of random
-# bits
+# bytes
 #
 # Pseudocode: unnecessary here
 
