@@ -11,7 +11,7 @@ static unsigned long int next = 1;
 
 int main(int argc, char *argv[]) {
     if(argc != 5) {
-        fprintf(stderr, "%s requires exactly 2 arguments: a file to read out random bytes to and the number of random bytes you want written to your file.", argv[0]);
+        fprintf(stderr, "%s requires exactly 2 arguments: a file to write out random bytes and the number of random bytes you want written to your file\n", argv[0]);
         return EXIT_FAILURE;
     }
     char * outfile = argv[1];

@@ -1,21 +1,20 @@
-
 // compile with gcc -std=c11 -Wall -pedantic -lcurl -o weather weather.c mycurl.c
 
 // ---------------- System includes:
 
-#include <stdlib.h> // for exit
-#include <stdio.h>  // for fprintf
+#include <stdlib.h>     // for exit
+#include <stdio.h>      // for fprintf
 #include <curl/curl.h>  // for curl
-#include <string.h> // for string manipulation functions to get output
-#include <time.h>   // for seeding rand
+#include <string.h>     // for string manipulation functions to get output
+#include <time.h>       // for seeding rand
 
 // ---------------- Local includes:
-#include "mycurl.h"    // to use ccp's curl functions
+#include "mycurl.h"     // to use ccp's curl functions
 
 // ---------------- Private prototypes
-int check_code_found(char * response, CURL *curl);      // checks if the station ID was correct
+int check_code_found(char * response, CURL *curl);           // checks if the station ID was correct
 void get_output(char * response, char * tag, char * data);   // prints out a single piece of data
-void print_output(char * response);             // calls get output for all the data
+void print_output(char * response);                          // calls get output for all the data
 unsigned int write_bits(char * response);
 void get_next_url(char* APIurl, char *stationIndex[], int randomStationIndex);
 void get_station_list(FILE *fp, char *stationList[]);
@@ -28,8 +27,9 @@ void get_station_list(FILE *fp, char *stationList[]);
 
 int main(int argc, char *argv[]) {
 
+    /* check args and initialize everything */
     if(argc != 3) {
-        fprintf(stderr, "%s requires exactly 2 arguments: a file to write random numbers to, and the number of ints you want.", argv[0]);
+        fprintf(stderr, "%s requires exactly 2 arguments: a file to write random numbers to, and the number of ints you want\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
     FILE *index = fopen("files/index.txt", "r");
     
     if(index == NULL) {
+	fclose(fp);
         fprintf(stderr, "Cannot open station index");
         return EXIT_FAILURE;
     } 
@@ -56,6 +57,13 @@ int main(int argc, char *argv[]) {
     int numInts = atoi(argv[2]);
 
     char *APIurl = (char *)  malloc(URLSIZE * sizeof(char));
+
+    if (!APIurl) {
+        fclose(fp);
+        fclose(index);
+        fprintf(stderr, "Malloc error, could not allocate memory\n");
+        return EXIT_FAILURE;
+    } 
     
     srand(time(NULL));
 
@@ -81,6 +89,7 @@ int main(int argc, char *argv[]) {
         /* set the buffer into which curl should place the data */
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
+        /* to store random numbers */
         unsigned int bits;
         unsigned int accumulator = 0x0;
         int step = 0;
@@ -90,8 +99,13 @@ int main(int argc, char *argv[]) {
 
 	    int randomStationIndex = rand() % NUMSTATIONS;
 	    
+            /* if index out of bounds, cut out and exit */
 	    if(randomStationIndex > NUMSTATIONS || randomStationIndex < 0){
-		fprintf(stderr, "random station index (%d)  out of bounds\n", randomStationIndex);
+		fprintf(stderr, "Random station index (%d) out of bounds\n", randomStationIndex);
+                fclose(fp);
+                fclose(index);
+                free(APIurl);
+                curl_easy_cleanup(curl);
 		return EXIT_FAILURE;
 	    }
 
@@ -103,12 +117,15 @@ int main(int argc, char *argv[]) {
             curl_easy_setopt(curl, CURLOPT_URL, APIurl);
 
 
-            /* Perform the request, res will get the return code */
+            /* perform the request, res will get the return code */
             res = curl_easy_perform(curl);
             
-            // if curl didn't work, cut out and exit
+            /* if curl didn't work, cut out and exit */
             if(res != CURLE_OK) {
-                fprintf(stderr, "Unsuccessful curl");
+                fprintf(stderr, "Unsuccessful curl\n");
+                fclose(index);
+                fclose(index);
+                free(APIurl);
                 curl_easy_cleanup(curl);
                 return EXIT_FAILURE;
             } 
@@ -119,25 +136,25 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            // get the random bits from the curl reply
+            /* get the random bits from the curl reply */
             bits = write_bits(s.ptr);
 
-            // if any bits aren't found, we get back an 8
-            // here we just want to skip the number
+            /* if any bits aren't found, we get back an 8
+             * here we just want to skip the number 
+             */
             if(bits == ERROR) {
-
                 init_curlResponse(&s);
                 continue;
             }
 
-            // shift to the appropriate slot
+            /* shift to the appropriate slot */
             bits = bits << 4 * step;
 
-            // add the bits in, move slot over
+            /* add the bits in, move slot over */
             accumulator = accumulator | bits;
             step++;
 
-            // if we have a full number, then write it!
+            /* if we have a full number, then write it! */
             if(step == sizeof(int)*2) {
                 
                 fprintf(fp, "%u\n", accumulator);
@@ -149,16 +166,21 @@ int main(int argc, char *argv[]) {
             }
             
 
-            /* allocate and intiialize the output area */
+            /* allocate and intialize the output area */
             init_curlResponse(&s);
 
         }
-        fclose(fp); 
+        fclose(fp);
+        fclose(index);
+        free(APIurl);
         curl_easy_cleanup(curl);
 
     }
     else {
-        fprintf(stderr, "Could not curl, likely no internet");
+        fprintf(stderr, "Could not curl, likely no internet\n");
+        fclose(fp);
+        fclose(index);
+        free(APIurl);
         return EXIT_FAILURE;
     }
     
@@ -243,7 +265,12 @@ unsigned int write_bits(char * response) {
     return toRet;
 }
 
-
+/* 
+ * get_output - get various fields from the weather
+ * information
+ *
+ * Works based on tags in curled HTML
+ */
 void  get_output(char *response, char *tag,  char * data) {
 
     char *tagPointer = strstr(response, tag);
@@ -265,7 +292,12 @@ void  get_output(char *response, char *tag,  char * data) {
 
 }
 
-
+/*
+ * get_station_list - build an index of valid stations
+ * 
+ * Used to increase speed and efficiency in our random
+ * number generator
+ */
 void get_station_list(FILE *fp, char *stationNames[]){
 
 	if(fp != NULL){
