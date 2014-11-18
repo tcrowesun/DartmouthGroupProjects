@@ -10,7 +10,8 @@ import javax.swing.JFileChooser;
 
 /**
  * EDITS FOR CS10 can be found as the first few methods in the program.
- * Added methods: reduceColors, computeColors, clusterColors, computeCentroid, findClosestColor, mapToColorList, and getColorDistance.
+ * Added methods: reduceColors, computeColors, clusterColors, computeCentroid, 
+ * findClosestColor, mapToColorList, and getColorDistance.
  * 
  * 
  * 
@@ -21,7 +22,9 @@ import javax.swing.JFileChooser;
  * Copyright Georgia Institute of Technology 2004-2008
  * @author Barbara Ericson ericson@cc.gatech.edu
  * @author Chris Leech edited 9/30/2013
+ * @author Chris Leech further edited 11/17/2014
  */
+
 public class Picture extends SimplePicture { 
 
   ///////////////////// constructors //////////////////////////////////
@@ -65,7 +68,6 @@ public class Picture extends SimplePicture {
     super(copyPicture);
   }
   
-  
   /**
    * Constructor that takes a buffered image
    * @param image the buffered image to use
@@ -75,6 +77,7 @@ public class Picture extends SimplePicture {
   }
   
   ////////////////////// methods ///////////////////////////////////////
+
   /**
    * reduceColors
    * Method that takes an int number of colors, and chooses the best colors to map to this image.
@@ -82,12 +85,10 @@ public class Picture extends SimplePicture {
    * @param the int number of colors to map to the image.
    * @return a new picture with the correct number of colors.
    */
-  
-  
+
   public Picture reduceColors(int number) {
   	return this.mapToColorList(computeColors(number));	
   }
-  
   
   /**
    * getFirstNColors
@@ -113,16 +114,14 @@ public class Picture extends SimplePicture {
   	// If origArray[index] isn't in the list, add it
   	while (numberOfInitialColors < colorNumber) {
   		
-  		if (!initColors.contains(origArray[index].getColor())) {		
-  			
-  			initColors.add(origArray[index].getColor());
-  			numberOfInitialColors ++;
+  		if (!initColors.contains(origArray[index].getColor())) {	
+  		    initColors.add(origArray[index].getColor());
+  		    numberOfInitialColors ++;
   		}
   		index ++;
   	}
   	return initColors;
   }
-  
   
   /**
    * computeColors
@@ -156,14 +155,11 @@ public class Picture extends SimplePicture {
   	
   	// start by filling the next list with the initial colors
   	for (Color listColor : initColors) {
-  		
   		nextColors.add(listColor);
   	}
   	
   	// initialize our array of arrays and an index int
   	ArrayList<ArrayList<Color>> clusters = new ArrayList<ArrayList<Color>>();
-
-  	
   	
   	// add an array to the grid for each color in the list
   	for (Color listColor : initColors ) {
@@ -177,7 +173,7 @@ public class Picture extends SimplePicture {
   	// cluster the colors under current colors
   	// find the centroid of each color
   	// add the set of centroids to nextcolors
-    while (!nextColors.equals(currentColors)) {
+        while (!nextColors.equals(currentColors)) {
     	
   		currentColors.clear();
   		for (Color listColor : nextColors) {
@@ -203,7 +199,6 @@ public class Picture extends SimplePicture {
   	
   }
   
-  
   /**
    * clusterColors
    * Method that takes an array of pixels and an ArrayList of colors 
@@ -213,15 +208,11 @@ public class Picture extends SimplePicture {
    * @return an ArrayList of ArrayLists full of pixels, one sub-list per color.
    */
   
-  private ArrayList<ArrayList<Color>> clusterColors(ArrayList<Color> colorArray, ArrayList<Color> colorlist, ArrayList<ArrayList<Color>> clusters) {
-  	
-  	
-
+  private ArrayList<ArrayList<Color>> clusterColors(ArrayList<Color> colorArray, ArrayList<Color> colorlist, 
+  ArrayList<ArrayList<Color>> clusters) {
 
   	int listIndex;
-  	
-
-  	
+  
   	// put each pixel in the correct sublist
 
   	for (Color color : colorArray) {
@@ -243,7 +234,8 @@ public class Picture extends SimplePicture {
    */
   
   private Color computeCentroid(ArrayList<Color> pixels) {
-  	// initialize variables for the length, and total RGB values of each centroid
+  	
+	// initialize variables for the length, and total RGB values of each centroid
   	int length = 0;
   	int totalRed = 0;
   	int totalGreen = 0;
@@ -262,8 +254,7 @@ public class Picture extends SimplePicture {
   	}
   	Color centroid = new Color(totalRed/length, totalGreen/length, totalBlue/length);
   	return centroid;
-  }
-  
+  } 
   
   /**
    * findClosestColor
@@ -295,9 +286,9 @@ public class Picture extends SimplePicture {
 	      smallestDist = temp;
 	      index = i;
 	    }
-	  }
+      }
       return index;
-	}
+  }
 	
   
   /**
@@ -344,7 +335,6 @@ public class Picture extends SimplePicture {
   	return thelist;
   }
   
-  
   /**
    * getColorDistance
    * Method that takes 2 colors and finds the distance between them.
@@ -357,16 +347,11 @@ public class Picture extends SimplePicture {
   	
   	// Creates a int for distance and sets it to the distance formula (without the sqrt)
   	int distance;
-  	distance = ((color1.getRed() - color2.getRed())*(color1.getRed() - color2.getRed()) + (color1.getBlue() - color2.getBlue())*(color1.getBlue() - color2.getBlue()) + (color1.getGreen() - color2.getGreen())*(color1.getGreen() - color2.getGreen()));
+  	distance = ((color1.getRed() - color2.getRed())*(color1.getRed() - color2.getRed()) + 
+        (color1.getBlue() - color2.getBlue())*(color1.getBlue() - color2.getBlue()) + (color1.getGreen() - 
+        color2.getGreen())*(color1.getGreen() - color2.getGreen()));
   	return distance;
   }
-  
-  
-  
-  
-  
-  
-  
   
   /** 
    * A Class that convolves a single pixel
@@ -407,11 +392,7 @@ public class Picture extends SimplePicture {
         // Loops through matrix and adds scaled colors of surrounding pixels to the final values
         
         final_red += pixelList[currentX][currentY].getRed() * matrix[currentX][currentY];
-
-
         final_green += pixelList[currentX][currentY].getGreen() * matrix[currentX][currentY];
-
-
         final_blue += pixelList[currentX][currentY].getBlue() * matrix[currentX][currentY];
         
       }
@@ -419,24 +400,17 @@ public class Picture extends SimplePicture {
     
     // Makes sure values are appropriate
     
-    if (final_red < 0)
-      final_red = 0;
-    if (final_green < 0)
-      final_green = 0;
-    if (final_blue < 0)
-      final_blue = 0;
-    if (final_red > 255)
-      final_red = 255;
-    if (final_green > 255)
-      final_green = 255;
-    if (final_blue > 255)
-      final_blue = 255;
+    if (final_red < 0) final_red = 0;
+    if (final_green < 0) final_green = 0;
+    if (final_blue < 0) final_blue = 0;
+    if (final_red > 255) final_red = 255;
+    if (final_green > 255) final_green = 255;
+    if (final_blue > 255) final_blue = 255;
 
     // Sets color of pixel in target image
     currentPixel.setColor(new Color( (int) final_red, (int) final_green, (int) final_blue));    
     
   }
-  
   
   /**
    * Convolve method for SA2
@@ -455,9 +429,8 @@ public class Picture extends SimplePicture {
     // Loops through pixels and convolves each (does not convolve edge)
     for (int currentX = 1; currentX < width - 1; currentX ++) {
       for (int currentY = 1; currentY < height - 1; currentY ++) {
-        
-        convolve_pixel(matrix, this, target, currentX, currentY);
-        
+    
+        convolve_pixel(matrix, this, target, currentX, currentY);    
         
       }
     }
@@ -474,8 +447,7 @@ public class Picture extends SimplePicture {
     
   public String toString() {
     String output = "Picture, filename " + getFileName() + 
-      " height " + getHeight() 
-      + " width " + getWidth();
+    " height " + getHeight() + " width " + getWidth();
     return output;
     
   }
@@ -549,15 +521,12 @@ public class Picture extends SimplePicture {
   public Picture flip() {
     Pixel currPixel = null;
     Pixel targetPixel = null;
-    Picture target = 
-      new Picture(this.getWidth(),this.getHeight());
+    Picture target = new Picture(this.getWidth(),this.getHeight());
     
-    for (int srcX = 0, trgX = getWidth()-1; 
-         srcX < getWidth();
-         srcX++, trgX--) {
-      for (int srcY = 0, trgY = 0; 
-           srcY < getHeight();
-           srcY++, trgY++) {
+    for (int srcX = 0, trgX = getWidth()-1; srcX < getWidth();
+    srcX++, trgX--) {
+      for (int srcY = 0, trgY = 0; srcY < getHeight();
+      srcY++, trgY++) {
         
         // get the current pixel
         currPixel = this.getPixel(srcX,srcY);
@@ -700,7 +669,7 @@ public class Picture extends SimplePicture {
    */
     
   public void chromakey(Picture target, Color bgColor, int threshold,
-                        int targetX, int targetY) {
+  int targetX, int targetY) {
  
     Pixel currPixel = null;
     Pixel newPixel = null;
@@ -833,8 +802,7 @@ public class Picture extends SimplePicture {
     }
     else
       return "";
-  }
-  
+  } 
   
   public static void main(String[] args) throws IOException {
     
